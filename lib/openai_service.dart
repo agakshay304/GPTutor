@@ -106,3 +106,26 @@ class OpenAIService extends StateNotifier<OpenAI> {
     return 'Some unexpected error occurred';
   }
 }
+
+
+
+  // final topics = [
+  //   {
+  //     'name': 'Topic 1',
+  //     'questions': {
+  //       "What does CUDA do?",
+  //       "What is the difference between ML and AI?",
+  //       "What is the capital of France?",
+  //       "Why Engineering at MIT Manipal?",
+  //       "Explain ML to me?",
+  //     }
+  //   },
+  //   {
+  //     'name': 'Topic 2',
+  //     'questions': {
+  //       "What are steps in ML?",
+  //       "What is the difference between ML and AI?",
+  //       "How to train a model?",
+  //     },
+  //   },
+  // ];
