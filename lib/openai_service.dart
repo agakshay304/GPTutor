@@ -10,6 +10,7 @@ final openAIServiceProvider =
 });
 
 class OpenAIService extends StateNotifier<OpenAI> {
+  var temp = 'Give answer in one word that is whether the given answer is correct or incorrect.';
   OpenAIService()
       : super(
           const OpenAI(
@@ -18,7 +19,7 @@ class OpenAIService extends StateNotifier<OpenAI> {
           ),
         );
 
-  Future<String> isArtPromptAPI(String prompt) async {
+  Future<String> isArtPromptAPI(String question, String answer) async {
     // can use `completions` api only but the responses are not smart
     // sometimes wont be able to identify
     try {
@@ -34,13 +35,13 @@ class OpenAIService extends StateNotifier<OpenAI> {
             {
               'role': 'user',
               'content':
-                  'Does this message want to generate an AI picture, image, art or anything similar? $prompt .Simply answer with yes or no.',
+                  'Does this message want to generate an AI picture, image, art or anything similar? $question .Simply answer with yes or no.',
             },
           ],
         }),
       );
       if (res.statusCode == 200) {
-        final content = await chatGPTMessageAPI(prompt);
+        final content = await getAnswer(question, answer);
         state = state.copyWith(
           isLoading: false,
         );
@@ -56,13 +57,13 @@ class OpenAIService extends StateNotifier<OpenAI> {
     return 'Some Error Ocurred';
   }
 
-  Future<String> chatGPTMessageAPI(String prompt) async {
+  Future<String> getAnswer(String question, String answer) async {
     state = state.copyWith(
       messages: [
         ...state.messages,
         {
           'role': 'user',
-          'content': prompt,
+          'content': '$temp $question Answer: $answer',
         },
       ],
     );

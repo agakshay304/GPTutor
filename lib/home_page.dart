@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animate_do/animate_do.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,14 +14,19 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  //List of questions to be asked to the user The list holds all the topics and subtopics.
   final List<String> questions = [
+    "What does CUDA do?",
+    "What is the difference between ML and AI?",
+    "What is the capital of France?",
     "Why Engineering at MIT Manipal?",
     "Explain ML to me?",
     "What are steps in ML?",
     "What is the difference between ML and AI?",
     "How to train a model?",
   ];
+
+  //textformfield controller
+  final TextEditingController _answer = TextEditingController();
 
   bool _isLoading = false;
   String? _speech;
@@ -32,7 +39,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     try {
       final speech = await ref
           .read(openAIServiceProvider.notifier)
-          .isArtPromptAPI(questions[0]);
+          .isArtPromptAPI(questions[0], _answer.text);
       setState(() {
         _speech = speech;
       });
@@ -43,8 +50,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       });
     }
   }
-
-  String lastWords = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,6 +119,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 IntrinsicWidth(
                   child: TextFormField(
+                    controller: _answer,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(
@@ -148,6 +154,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 const SizedBox(
                   height: 10,
+                ),
+                //One more container to show the answer
+                Container(
+                  width: 300,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      _speech ?? "",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
