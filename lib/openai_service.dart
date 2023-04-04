@@ -10,7 +10,7 @@ final openAIServiceProvider =
 });
 
 class OpenAIService extends StateNotifier<OpenAI> {
-  var temp = 'Give answer in one word that is whether the given answer is correct or incorrect.';
+  var temp = 'Give answer in one word that is whether the given answer is correct or incorrect. If correct then type Yes and if incorrect then type No.';
   OpenAIService()
       : super(
           const OpenAI(
@@ -106,26 +106,3 @@ class OpenAIService extends StateNotifier<OpenAI> {
     return 'Some unexpected error occurred';
   }
 }
-
-
-
-  // final topics = [
-  //   {
-  //     'name': 'Topic 1',
-  //     'questions': {
-  //       "What does CUDA do?",
-  //       "What is the difference between ML and AI?",
-  //       "What is the capital of France?",
-  //       "Why Engineering at MIT Manipal?",
-  //       "Explain ML to me?",
-  //     }
-  //   },
-  //   {
-  //     'name': 'Topic 2',
-  //     'questions': {
-  //       "What are steps in ML?",
-  //       "What is the difference between ML and AI?",
-  //       "How to train a model?",
-  //     },
-  //   },
-  // ];
