@@ -18,6 +18,8 @@ dependencies:
   flutter_riverpod: ^2.3.2
   flutter_tts: ^3.6.3
   http: ^0.13.5
+  loading_animation_widget: ^1.2.0+4
+  quickalert: ^1.0.1
   speech_to_text: ^6.1.1
 
 dev_dependencies:

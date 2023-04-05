@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:animate_do/animate_do.dart';
-import 'package:auto_size_text_field/auto_size_text_field.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gptutor/openai_service.dart';
 import 'package:gptutor/topics.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'widgets/progress_bar.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -33,7 +33,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    _speak("Welcome to GPTutor");
 
     if (currentQuestionIndex == 0) {
       callexplain();
@@ -107,7 +106,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           _showFailureDialog();
         }
 
-        if(currentQuestionIndex == 0 && currentTopicIndex!=0) {
+        if (currentQuestionIndex == 0 && currentTopicIndex != 0) {
           callexplain();
         }
       }
@@ -277,137 +276,112 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        //show floating action button only on the first question
-        floatingActionButton: currentQuestionIndex == 0
-            ? FloatingActionButton(
-                onPressed: () {
-                  _explain();
-                },
-                child: const Icon(Icons.help_outline),
-              )
-            : null,
-        appBar: AppBar(
-          elevation: 0,
-          leading: IconButton(
-            color: Colors.black,
-            onPressed: () {},
-            icon: const Icon(Icons.menu),
-          ),
-          centerTitle: true,
-          title: BounceInDown(
-            child: const Text(
-              "GPTutor",
-              style: TextStyle(color: Colors.black),
+    return _isLoadingScreen
+        ? Scaffold(
+            body: Center(
+              child: LoadingAnimationWidget.dotsTriangle(
+                color: ThemeData.light(useMaterial3: true).primaryColor,
+                size: 50,
+              ),
             ),
-          ),
-        ),
-        body: _isLoadingScreen
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 500,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: const Offset(
-                                  0, 3), // changes position of shadow
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              "Topic: ${topics[currentTopicIndex].name}",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                topics[currentTopicIndex]
-                                    .questions[currentQuestionIndex],
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ],
+          )
+        : Scaffold(
+            floatingActionButton: currentQuestionIndex == 0
+                ? FloatingActionButton(
+                    onPressed: () {
+                      _explain();
+                    },
+                    child: const Icon(Icons.help_outline),
+                  )
+                : null,
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              elevation: 0,
+              centerTitle: true,
+              title: BounceInDown(
+                child: const Text(
+                  "GPTutor",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    ProgressBar(
+                        stepNumber: correctAnswersCount,
+                        stepTotal: topics[currentTopicIndex].questions.length),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      topics[currentTopicIndex].name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      controller: _answer,
+                      maxLines: 10,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Enter your answer here",
                       ),
-                      AutoSizeTextField(
-                        controller: _answer,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
                             ),
                           ),
-                          contentPadding: EdgeInsets.all(10),
-                          hintText: "Enter your answer here",
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: 200,
-                          height: 50,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                ),
-                              ),
-                              onPressed: completed
-                                  ? () {
-                                      _showSuccessDialog();
-                                    }
-                                  : _isLoading
-                                      ? null
-                                      : _submit,
-                              child: _isLoading
-                                  ? const CircularProgressIndicator(
-                                      strokeWidth: 1,
-                                    )
-                                  : const Text('Submit')),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        _speech ?? "",
-                        style: const TextStyle(
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
+                          onPressed: completed
+                              ? () {
+                                  _showSuccessDialog();
+                                }
+                              : _isLoading
+                                  ? null
+                                  : _submit,
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  strokeWidth: 1,
+                                )
+                              : const Text('Submit')),
+                    ),
+                  ],
                 ),
-              ));
+              ),
+            ));
   }
 }

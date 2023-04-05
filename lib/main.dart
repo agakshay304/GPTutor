@@ -10,7 +10,6 @@ relation to the current topic/subtopic. Once this prompt decides “yes” to th
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gptutor/home_page.dart';
 import 'package:gptutor/landing_page.dart';
 
 void main() {
