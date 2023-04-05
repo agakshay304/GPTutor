@@ -34,6 +34,17 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _speak("Welcome to GPTutor");
+
+    if (currentQuestionIndex == 0) {
+      callexplain();
+    }
+  }
+
+  //call explaination
+  void callexplain() {
+    Future.delayed(const Duration(seconds: 1), () {
+      _explain();
+    });
   }
 
   @override
@@ -94,6 +105,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           print(
               "You did not answer at least 2 out of 3 questions correctly for the current topic. Please try again.");
           _showFailureDialog();
+        }
+
+        if(currentQuestionIndex == 0 && currentTopicIndex!=0) {
+          callexplain();
         }
       }
       //TODO: Handle edge case when index is out of bounds
@@ -156,6 +171,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future _speak(String texttospeech) async {
+    //change voice
     await flutterTts.setLanguage("en-US");
     await flutterTts.setPitch(1);
     await flutterTts.speak(texttospeech);
