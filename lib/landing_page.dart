@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gptutor/topics.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'home_page.dart';
@@ -28,31 +29,40 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SvgPicture.asset('assets/images/logo.svg', height: 40),
+            SvgPicture.asset('assets/images/avatar.svg', height: 40),
+          ],
+        ),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 50),
-            const Text(
-              'Welcome to GPTutor',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 30),
+            Center(
+                child: SvgPicture.asset('assets/images/moto.svg', height: 30)),
+            const SizedBox(height: 30),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
+              height: MediaQuery.of(context).size.height * 0.55,
               child: ListView(
                 children: [
                   for (var i = 0; i < topics.length; i++)
                     Card(
-                      color: i == 0 ? null : Colors.grey[200],
                       child: ListTile(
+                        textColor: Colors.white,
+                        tileColor: i == 0
+                            ? const Color(0xff6C0BA9)
+                            : const Color(0xff9867c9),
                         trailing: i == 0
-                            ? const Icon(Icons.lock_open)
-                            : const Icon(Icons.lock),
+                            ? const Icon(Icons.lock_open, color: Colors.white)
+                            : const Icon(Icons.lock, color: Colors.white),
                         title: Text(topics[i].name),
                         onTap: () {
                           if (i == 0) {
@@ -69,7 +79,7 @@ class _LandingPageState extends State<LandingPage> {
                                 return AlertDialog(
                                   title: const Text('Alert'),
                                   content:
-                                      const Text('This topic is not available'),
+                                      const Text('This topic is not unlocked'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
@@ -88,6 +98,11 @@ class _LandingPageState extends State<LandingPage> {
                 ],
               ),
             ),
+            Center(
+                child: SvgPicture.asset(
+              'assets/images/developer.svg',
+              height: 100,
+            )),
           ],
         ),
       ),
