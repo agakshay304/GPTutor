@@ -5,6 +5,7 @@ import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gptutor/openai_service.dart';
+import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/topics.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'widgets/progress_bar.dart';
@@ -29,6 +30,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   String? _explaination;
 
   final TextEditingController _answer = TextEditingController();
+
+  Map<String, int> topicWiseCorrectAnswers = {};
 
   @override
   void initState() {
@@ -58,6 +61,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
 
     try {
+      print("CurrentQuestionIndex: $currentQuestionIndex");
+      print("CurrentTopicIndex: $currentTopicIndex");
       final currentQuestion =
           topics[currentTopicIndex].questions[currentQuestionIndex];
       final speech = await ref
@@ -66,33 +71,42 @@ class _HomePageState extends ConsumerState<HomePage> {
       setState(() {
         _speech = speech;
       });
-      print(speech);
+      print(_speech);
 
       if (_speech?.toLowerCase().contains("yes") == true) {
         _speak("Correct answer");
-        _correctDialog();
-        correctAnswersCount++;
-      } else {
-        //if is not the last question of the topic
         if (currentQuestionIndex !=
             topics[currentTopicIndex].questions.length - 1) {
-          _speak("Incorrect answer");
+          _correctDialog();
+        }
+        correctAnswersCount++;
+        topicWiseCorrectAnswers[topics[currentTopicIndex].name] =
+            correctAnswersCount;
+      } else {
+        _speak("Incorrect answer");
+        if (currentQuestionIndex !=
+            topics[currentTopicIndex].questions.length - 1) {
           _incorrectDialog();
         }
       }
 
       print("Correct answers count: $correctAnswersCount");
-      currentQuestionIndex++;
 
-      if (currentQuestionIndex >= topics[currentTopicIndex].questions.length) {
+      if (currentQuestionIndex ==
+              topics[currentTopicIndex].questions.length - 1 &&
+          !completed) {
         // Check if the user has answered at least 2 out of 3 questions correctly for the current topic
-        if (correctAnswersCount >= 2) {
-          // Move to the next topic if they have
-          currentTopicIndex++;
-          if (currentTopicIndex >= topics.length) {
-            print("You have completed all the topics!");
+        if (correctAnswersCount >= 2 && !completed) {
+          if (currentTopicIndex == topics.length - 1) {
+            print("You have completed all the topicssssss!");
             completed = true;
-            return;
+            print("Topic wise correct answers: $topicWiseCorrectAnswers");
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return ResultScreen(
+                  topicWiseCorrectAnswers: topicWiseCorrectAnswers);
+            }));
+          } else {
+            currentTopicIndex++;
           }
           // Reset the current question index and correct answer count for the new topic
           currentQuestionIndex = 0;
@@ -106,11 +120,12 @@ class _HomePageState extends ConsumerState<HomePage> {
           _showFailureDialog();
         }
 
-        if (currentQuestionIndex == 0 && currentTopicIndex != 0) {
+        if (currentQuestionIndex == 0 && currentTopicIndex != 0 && !completed) {
           callexplain();
         }
+      } else {
+        currentQuestionIndex++;
       }
-      //TODO: Handle edge case when index is out of bounds
     } finally {
       setState(() {
         _isLoading = false;
@@ -182,6 +197,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
 
     try {
+      print("Explainnnnn CurrentTopicIndex: $currentTopicIndex");
       final currentTopic = topics[currentTopicIndex].name;
       print(currentTopic);
       final explaination = await ref
@@ -276,7 +292,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return _isLoadingScreen
+    return _isLoadingScreen && !completed
         ? Scaffold(
             body: Center(
               child: LoadingAnimationWidget.dotsTriangle(
@@ -286,7 +302,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           )
         : Scaffold(
-            floatingActionButton: currentQuestionIndex == 0
+            floatingActionButton: currentQuestionIndex == 0 && !completed
                 ? FloatingActionButton(
                     onPressed: () {
                       _explain();
@@ -303,38 +319,29 @@ class _HomePageState extends ConsumerState<HomePage> {
                   topics[currentTopicIndex].name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color: ThemeData.light(useMaterial3: true).primaryColor,
                   ),
                 ),
               ),
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     ProgressBar(
-                        stepNumber: correctAnswersCount,
+                        stepNumber: currentQuestionIndex,
                         stepTotal: topics[currentTopicIndex].questions.length),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    // Text(
-                    //   topics[currentTopicIndex].name,
-                    //   style: const TextStyle(
-                    //     fontSize: 24,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                    // const SizedBox(
-                    //   height: 10,
-                    // ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    SizedBox(
+                      width: double.infinity,
                       child: Text(
                         "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
                         style: const TextStyle(
                           fontSize: 17,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -344,13 +351,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                     TextFormField(
                       controller: _answer,
                       maxLines: 10,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
+                      decoration: InputDecoration(
+                        fillColor:
+                            ThemeData.light(useMaterial3: true).primaryColor,
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(10),
                           ),
                         ),
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Enter your answer here",
                       ),
                     ),
@@ -368,13 +377,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ),
                             ),
                           ),
-                          onPressed: completed
-                              ? () {
-                                  _showSuccessDialog();
-                                }
-                              : _isLoading
-                                  ? null
-                                  : _submit,
+                          onPressed: _isLoading ? null : _submit,
                           child: _isLoading
                               ? const CircularProgressIndicator(
                                   strokeWidth: 1,
@@ -384,6 +387,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ],
                 ),
               ),
-            ));
+            ),
+          );
   }
 }
