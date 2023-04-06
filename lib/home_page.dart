@@ -299,9 +299,11 @@ class _HomePageState extends ConsumerState<HomePage> {
               elevation: 0,
               centerTitle: true,
               title: BounceInDown(
-                child: const Text(
-                  "GPTutor",
-                  style: TextStyle(color: Colors.black),
+                child: Text(
+                  topics[currentTopicIndex].name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -316,16 +318,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Text(
-                      topics[currentTopicIndex].name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    // Text(
+                    //   topics[currentTopicIndex].name,
+                    //   style: const TextStyle(
+                    //     fontSize: 24,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
