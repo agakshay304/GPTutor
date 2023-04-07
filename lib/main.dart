@@ -11,6 +11,7 @@ relation to the current topic/subtopic. Once this prompt decides “yes” to th
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptutor/landing_page.dart';
+import 'package:gptutor/widgets/colors.dart';
 
 void main() {
   runApp(
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: primaryColor,
         ),
       ),
       // home: const HomePage(),

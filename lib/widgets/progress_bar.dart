@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:gptutor/widgets/colors.dart';
 
 class ProgressBar extends StatelessWidget {
   const ProgressBar({
@@ -21,8 +21,7 @@ class ProgressBar extends StatelessWidget {
             ),
           ),
           child: LinearProgressIndicator(
-            // valueColor:
-            //     const AlwaysStoppedAnimation<Color>(),
+            valueColor: const AlwaysStoppedAnimation<Color>(primaryColor),
             value: stepNumber / stepTotal,
             minHeight: 9,
           ),
@@ -43,9 +42,9 @@ class ProgressBar extends StatelessWidget {
             child: Center(
               child: Text(
                 '$stepNumber/$stepTotal',
-                // style: ClickkedTextStyles.bodySmallSemibold.copyWith(
-                //   color: ClickkedColors.neutral0,
-                // ),
+                style: const TextStyle(
+                  color: primaryColor,
+                ),
               ),
             ),
           ),

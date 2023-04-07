@@ -9,6 +9,7 @@ import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/topics.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'widgets/progress_bar.dart';
+import 'widgets/colors.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -25,6 +26,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   int currentQuestionIndex = 0;
   bool completed = false;
   bool _isLoading = false;
+  bool _btnactive = false;
   bool _isLoadingScreen = false;
   String? _speech;
   String? _explaination;
@@ -44,7 +46,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   //call explaination
   void callexplain() {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 30), () {
       _explain();
     });
   }
@@ -261,28 +263,49 @@ class _HomePageState extends ConsumerState<HomePage> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text(topics[currentTopicIndex].name),
-          content: SingleChildScrollView(child: Text(_explaination!)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: primaryColor,
+          title: Center(
+            child: Text(topics[currentTopicIndex].name,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+          content: SingleChildScrollView(
+              child: Text(
+            _explaination!,
+            style: const TextStyle(color: Colors.white),
+          )),
           actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    flutterTts.stop();
-                    Navigator.pop(context);
-                  },
-                  child: const Text("OK"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    flutterTts.stop();
-                    _explain();
-                  },
-                  child: const Text("Explain again"),
-                ),
-              ],
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10)),
+                color: secondaryColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      flutterTts.stop();
+                      _explain();
+                    },
+                    child: const Text("Explain again",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      flutterTts.stop();
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Proceed",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -296,7 +319,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ? Scaffold(
             body: Center(
               child: LoadingAnimationWidget.dotsTriangle(
-                color: ThemeData.light(useMaterial3: true).primaryColor,
+                color: primaryColor,
                 size: 50,
               ),
             ),
@@ -307,7 +330,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onPressed: () {
                       _explain();
                     },
-                    child: const Icon(Icons.help_outline),
+                    child: const Icon(Icons.help_outline, color: Colors.white),
                   )
                 : null,
             appBar: AppBar(
@@ -317,9 +340,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               title: BounceInDown(
                 child: Text(
                   topics[currentTopicIndex].name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: ThemeData.light(useMaterial3: true).primaryColor,
+                    color: primaryColor,
                   ),
                 ),
               ),
@@ -350,6 +373,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     TextFormField(
                       controller: _answer,
+                      onChanged: (value) => setState(() {
+                        _btnactive = true;
+                      }),
+                      keyboardType: TextInputType.multiline,
                       maxLines: 10,
                       decoration: InputDecoration(
                         fillColor:
@@ -371,18 +398,24 @@ class _HomePageState extends ConsumerState<HomePage> {
                       height: 50,
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            primary: primaryColor,
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
                           ),
-                          onPressed: _isLoading ? null : _submit,
+                          onPressed: _btnactive == false
+                              ? null
+                              : _isLoading
+                                  ? null
+                                  : _submit,
                           child: _isLoading
                               ? const CircularProgressIndicator(
                                   strokeWidth: 1,
                                 )
-                              : const Text('Submit')),
+                              : const Text('Submit',
+                                  style: TextStyle(color: Colors.white))),
                     ),
                   ],
                 ),
