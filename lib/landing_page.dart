@@ -34,9 +34,20 @@ class _LandingPageState extends State<LandingPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SvgPicture.asset(
-              'assets/images/logo.svg',
-              height: 40,
+            Row(
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 40,
+                  width: 40,
+                ),
+                SvgPicture.asset(
+                  'assets/images/title.svg',
+                  height: 40,
+                  width: 40,
+                  allowDrawingOutsideViewBox: true,
+                ),
+              ],
             ),
             SvgPicture.asset('assets/images/avatar.svg', height: 40),
           ],
@@ -44,17 +55,17 @@ class _LandingPageState extends State<LandingPage> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 46),
             Center(
                 child: SvgPicture.asset('assets/images/moto.svg', height: 30)),
             const SizedBox(height: 30),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.55,
+              height: 348,
               child: ListView(
                 children: [
                   for (var i = 0; i < topics.length; i++)

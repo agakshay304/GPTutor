@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptutor/landing_page.dart';
 import 'package:gptutor/widgets/colors.dart';
 
+import 'home_page.dart';
+
 void main() {
   runApp(
     const ProviderScope(
@@ -39,8 +41,8 @@ class MyApp extends StatelessWidget {
           backgroundColor: primaryColor,
         ),
       ),
-      // home: const HomePage(),
-      home: const LandingPage(),
+      home: LandingPage(),
+      // home: const Dummy(),
     );
   }
 }

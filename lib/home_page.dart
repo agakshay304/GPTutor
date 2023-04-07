@@ -3,12 +3,13 @@ import 'package:animate_do/animate_do.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gptutor/openai_service.dart';
 import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/topics.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'widgets/progress_bar.dart';
+import 'package:lottie/lottie.dart';
 import 'widgets/colors.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -30,6 +31,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   bool _isLoadingScreen = false;
   String? _speech;
   String? _explaination;
+
+  StepState ss1 = StepState.indexed;
+  StepState ss2 = StepState.indexed;
+  StepState ss3 = StepState.indexed;
 
   final TextEditingController _answer = TextEditingController();
 
@@ -79,6 +84,19 @@ class _HomePageState extends ConsumerState<HomePage> {
         _speak("Correct answer");
         if (currentQuestionIndex !=
             topics[currentTopicIndex].questions.length - 1) {
+          switch (currentQuestionIndex) {
+            case 0:
+              ss1 = StepState.complete;
+              break;
+            case 1:
+              ss2 = StepState.complete;
+              break;
+            case 2:
+              ss3 = StepState.complete;
+              break;
+            default:
+          }
+          setState(() {});
           _correctDialog();
         }
         correctAnswersCount++;
@@ -88,6 +106,19 @@ class _HomePageState extends ConsumerState<HomePage> {
         _speak("Incorrect answer");
         if (currentQuestionIndex !=
             topics[currentTopicIndex].questions.length - 1) {
+          switch (currentQuestionIndex) {
+            case 0:
+              ss1 = StepState.error;
+              break;
+            case 1:
+              ss2 = StepState.error;
+              break;
+            case 2:
+              ss3 = StepState.error;
+              break;
+            default:
+          }
+          setState(() {});
           _incorrectDialog();
         }
       }
@@ -123,6 +154,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         }
 
         if (currentQuestionIndex == 0 && currentTopicIndex != 0 && !completed) {
+          ss1 = StepState.indexed;
+          ss2 = StepState.indexed;
+          ss3 = StepState.indexed;
           callexplain();
         }
       } else {
@@ -259,135 +293,234 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _showExplainDialog() {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: primaryColor,
-          title: Center(
-            child: Text(topics[currentTopicIndex].name,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
-          content: SingleChildScrollView(
-              child: Text(
-            _explaination!,
-            style: const TextStyle(color: Colors.white),
-          )),
-          actions: [
-            Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-                color: secondaryColor,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      flutterTts.stop();
-                      _explain();
-                    },
-                    child: const Text("Explain again",
-                        style: TextStyle(color: Colors.white)),
+    Navigator.of(context).push(
+      PageRouteBuilder(
+          barrierColor: Colors.white,
+          pageBuilder: (context, _, __) => Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/logo.png',
+                            height: 40,
+                            width: 40,
+                          ),
+                          SvgPicture.asset(
+                            'assets/images/title.svg',
+                            height: 40,
+                            width: 40,
+                            allowDrawingOutsideViewBox: true,
+                          ),
+                        ],
+                      ),
+                      SvgPicture.asset('assets/images/avatar.svg', height: 40),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      flutterTts.stop();
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Proceed",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
+                  centerTitle: true,
+                ),
+                body: Column(
+                  children: [
+                    AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      backgroundColor: primaryColor,
+                      title: Center(
+                        child: Text(topics[currentTopicIndex].name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                      content: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: SingleChildScrollView(
+                            child: Text(
+                          _explaination!,
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                      ),
+                      actionsPadding: const EdgeInsets.all(0),
+                      actions: [
+                        Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                            ),
+                            color: secondaryColor,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  flutterTts.stop();
+                                  _explain();
+                                },
+                                child: const Text("Explain again",
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  flutterTts.stop();
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Proceed",
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
-      },
+          opaque: true),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    int current_step = 0;
+    List<Step> steps = [
+      Step(
+        title: Text(''),
+        content: Text(''),
+        isActive: true,
+        state: ss1,
+      ),
+      Step(
+        title: Text(''),
+        content: Text(''),
+        isActive: true,
+        state: ss2,
+      ),
+      Step(
+        title: Text(''),
+        content: Text(''),
+        // state: StepState.editing,
+        isActive: true,
+        state: ss3,
+      ),
+    ];
     return _isLoadingScreen && !completed
         ? Scaffold(
             body: Center(
-              child: LoadingAnimationWidget.dotsTriangle(
-                color: primaryColor,
-                size: 50,
+              child: Lottie.asset(
+                'assets/lottie/test.json',
+                width: 100,
+                height: 100,
               ),
             ),
           )
         : Scaffold(
-            floatingActionButton: currentQuestionIndex == 0 && !completed
-                ? FloatingActionButton(
-                    onPressed: () {
-                      _explain();
-                    },
-                    child: const Icon(Icons.help_outline, color: Colors.white),
-                  )
-                : null,
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              elevation: 0,
-              centerTitle: true,
-              title: BounceInDown(
-                child: Text(
-                  topics[currentTopicIndex].name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 40,
+                        width: 40,
+                      ),
+                      SvgPicture.asset(
+                        'assets/images/title.svg',
+                        height: 40,
+                        width: 40,
+                        allowDrawingOutsideViewBox: true,
+                      ),
+                    ],
                   ),
-                ),
+                  SvgPicture.asset('assets/images/avatar.svg', height: 40),
+                ],
               ),
+              centerTitle: true,
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    ProgressBar(
-                        stepNumber: currentQuestionIndex,
-                        stepTotal: topics[currentTopicIndex].questions.length),
-                    const SizedBox(
-                      height: 20,
+                    Container(
+                      height: 41,
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Center(
+                        child: Text(
+                          topics[currentTopicIndex].name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(
-                      width: double.infinity,
-                      child: Text(
-                        "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
+                      height: 80,
+                      child: Theme(
+                        data: ThemeData(
+                            colorScheme: Theme.of(context)
+                                .colorScheme
+                                .copyWith(primary: primaryColor)),
+                        child: Stepper(
+                          elevation: 0,
+                          controlsBuilder: (context, controller) {
+                            return const SizedBox.shrink();
+                          },
+                          currentStep: current_step,
+                          steps: steps,
+                          type: StepperType.horizontal,
                         ),
+                      ),
+                    ),
+                    Text(
+                      "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
+                      style: const TextStyle(
+                        fontSize: 17,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    TextFormField(
-                      controller: _answer,
-                      onChanged: (value) => setState(() {
-                        _btnactive = true;
-                      }),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 10,
-                      decoration: InputDecoration(
-                        fillColor:
-                            ThemeData.light(useMaterial3: true).primaryColor,
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
+                    Material(
+                      elevation: 5,
+                      borderRadius: BorderRadius.circular(5),
+                      child: TextFormField(
+                        style: const TextStyle(
+                          color: secondaryColor,
+                        ),
+                        controller: _answer,
+                        onChanged: (value) => setState(() {
+                          _btnactive = true;
+                        }),
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 7,
+                        cursorColor: primaryColor,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none),
+                          contentPadding: const EdgeInsets.all(10),
+                          hintText: "Enter your answer here",
+                          hintStyle: const TextStyle(
+                            color: secondaryColor,
                           ),
                         ),
-                        contentPadding: const EdgeInsets.all(10),
-                        hintText: "Enter your answer here",
                       ),
                     ),
                     const SizedBox(
