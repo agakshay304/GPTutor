@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:animate_do/animate_do.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,12 +7,13 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gptutor/openai_service.dart';
 import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/topics.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
+import 'gp_provider.dart';
 import 'widgets/colors.dart';
 
 class HomePage extends ConsumerStatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final int index;
+  const HomePage({Key? key, required this.index}) : super(key: key);
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
@@ -44,9 +44,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
 
-    if (currentQuestionIndex == 0) {
-      callexplain();
-    }
+    currentTopicIndex = widget.index;
+    callexplain();
   }
 
   //call explaination
@@ -134,12 +133,23 @@ class _HomePageState extends ConsumerState<HomePage> {
             print("You have completed all the topicssssss!");
             completed = true;
             print("Topic wise correct answers: $topicWiseCorrectAnswers");
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ResultScreen(
-                  topicWiseCorrectAnswers: topicWiseCorrectAnswers);
-            }));
+            // ignore: use_build_context_synchronously
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return ResultScreen(
+                    topicWiseCorrectAnswers: topicWiseCorrectAnswers);
+              }),
+            );
           } else {
             currentTopicIndex++;
+            // ignore: use_build_context_synchronously
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return HomePage(index: currentTopicIndex);
+              }),
+            );
           }
           // Reset the current question index and correct answer count for the new topic
           currentQuestionIndex = 0;
@@ -233,7 +243,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
 
     try {
-      print("Explainnnnn CurrentTopicIndex: $currentTopicIndex");
+      print("Explain CurrentTopicIndex: $currentTopicIndex");
       final currentTopic = topics[currentTopicIndex].name;
       print(currentTopic);
       final explaination = await ref
@@ -278,7 +288,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       builder: (_) {
         return AlertDialog(
           title: const Text("Try again!"),
-          content: const Text("You did not pass this topic. Please try again."),
+          content: const Text(
+              "You did not answer at least 2 out of 3 questions correctly for the current topic. Please try again."),
           actions: [
             TextButton(
               onPressed: () {
@@ -329,18 +340,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                           borderRadius: BorderRadius.circular(10)),
                       backgroundColor: primaryColor,
                       title: Center(
-                        child: Text(topics[currentTopicIndex].name,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
+                        child: Text(
+                          topics[currentTopicIndex].name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       content: SizedBox(
                         height: MediaQuery.of(context).size.height * 0.5,
                         child: SingleChildScrollView(
-                            child: Text(
-                          _explaination!,
-                          style: const TextStyle(color: Colors.white),
-                        )),
+                          child: Text(
+                            _explaination!,
+                            style: const TextStyle(color: Colors.white),
+                            textAlign: TextAlign.justify,
+                          ),
+                        ),
                       ),
                       actionsPadding: const EdgeInsets.all(0),
                       actions: [
@@ -386,6 +402,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final gptRef = ref.watch(gptProvider);
     int current_step = 0;
     List<Step> steps = [
       Step(
@@ -446,8 +463,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       height: 41,
@@ -484,12 +502,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                       ),
                     ),
-                    Text(
-                      "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
-                      style: const TextStyle(
-                        fontSize: 17,
-                        color: primaryColor,
-                        fontWeight: FontWeight.w400,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                      ),
+                      child: Text(
+                        "${currentQuestionIndex + 1}. ${topics[currentTopicIndex].questions[currentQuestionIndex]}",
+                        style: const TextStyle(
+                          fontSize: 17,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -526,29 +549,43 @@ class _HomePageState extends ConsumerState<HomePage> {
                     const SizedBox(
                       height: 40,
                     ),
-                    SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: primaryColor,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
+                    Center(
+                      child: SizedBox(
+                        width: 200,
+                        height: 50,
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: primaryColor,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
                               ),
                             ),
-                          ),
-                          onPressed: _btnactive == false
-                              ? null
-                              : _isLoading
-                                  ? null
-                                  : _submit,
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  strokeWidth: 1,
-                                )
-                              : const Text('Submit',
-                                  style: TextStyle(color: Colors.white))),
+                            onPressed: _btnactive == false
+                                ? null
+                                : _isLoading
+                                    ? null
+                                    : () {
+                                        var prevTopic = currentTopicIndex;
+                                        _submit().then((value) {
+                                          gptRef.setCurrentTopicIndex(
+                                            currentTopicIndex,
+                                          );
+                                          var newTopic =
+                                              gptRef.currentTopicIndex;
+                                          if (prevTopic != newTopic) {
+                                            gptRef.setUnlockedTopics(newTopic);
+                                          }
+                                        });
+                                      },
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    strokeWidth: 1,
+                                  )
+                                : const Text('Submit',
+                                    style: TextStyle(color: Colors.white))),
+                      ),
                     ),
                   ],
                 ),

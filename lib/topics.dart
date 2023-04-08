@@ -30,8 +30,5 @@ final List<Topic> topics = [
     "What is the difference between training and testing?",
     "What is the difference between validation and cross-validation?",
     "What is the difference between precision and recall?",
-    "What is the difference between accuracy and F1 score?",
-    "What is the difference between precision and recall?",
-    "What is the difference between accuracy and F1 score?",
   ]),
 ];

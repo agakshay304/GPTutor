@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gptutor/topics.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'gp_provider.dart';
 import 'home_page.dart';
 import 'widgets/colors.dart';
 
-class LandingPage extends StatefulWidget {
+class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  ConsumerState<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _LandingPageState extends ConsumerState<LandingPage> {
   FlutterTts flutterTts = FlutterTts();
 
   @override
@@ -29,6 +31,7 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final gptRef = ref.watch(gptProvider);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -52,74 +55,83 @@ class _LandingPageState extends State<LandingPage> {
             SvgPicture.asset('assets/images/avatar.svg', height: 40),
           ],
         ),
-        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 46),
-            Center(
-                child: SvgPicture.asset('assets/images/moto.svg', height: 30)),
-            const SizedBox(height: 30),
-            SizedBox(
-              height: 348,
-              child: ListView(
-                children: [
-                  for (var i = 0; i < topics.length; i++)
-                    Card(
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                  child:
+                      SvgPicture.asset('assets/images/moto.svg', height: 25)),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.49,
+                child: ListView(
+                  children: [
+                    for (var i = 0; i < topics.length; i++)
+                      Card(
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          textColor: Colors.white,
+                          tileColor: (gptRef.unlockedTopics.contains(i))
+                              ? primaryColor
+                              : secondaryColor,
+                          trailing: (gptRef.unlockedTopics.contains(i))
+                              ? const Icon(Icons.lock_open, color: Colors.white)
+                              : const Icon(Icons.lock, color: Colors.white),
+                          title: Center(child: Text(topics[i].name)),
+                          onTap: () {
+                            if ((gptRef.unlockedTopics.contains(i))) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>HomePage( index: i),
+                                ),
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Alert'),
+                                    content: const Text(
+                                        'This Topic is not unlocked'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
                         ),
-                        textColor: Colors.white,
-                        tileColor: i == 0 ? primaryColor : secondaryColor,
-                        trailing: i == 0
-                            ? const Icon(Icons.lock_open, color: Colors.white)
-                            : const Icon(Icons.lock, color: Colors.white),
-                        title: Center(child: Text(topics[i].name)),
-                        onTap: () {
-                          if (i == 0) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePage(),
-                              ),
-                            );
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Alert'),
-                                  content:
-                                      const Text('This Topic is not unlocked'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                        },
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Center(
-                child: SvgPicture.asset(
-              'assets/images/developer.svg',
-              height: 100,
-            )),
-          ],
+              const SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/images/developer.svg',
+                    height: 100,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
