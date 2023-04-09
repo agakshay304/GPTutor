@@ -1,5 +1,6 @@
 import 'dart:async';
 import "package:flutter/material.dart";
+import 'package:flutter/services.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -61,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _answer.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit(GPTProvider gptProvider) async {
     setState(() {
       _isLoading = true;
     });
@@ -99,8 +100,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           _correctDialog();
         }
         correctAnswersCount++;
-        topicWiseCorrectAnswers[topics[currentTopicIndex].name] =
-            correctAnswersCount;
+        // topicWiseCorrectAnswers[topics[currentTopicIndex].name] =
+        //     correctAnswersCount;
       } else {
         _speak("Incorrect answer");
         if (currentQuestionIndex !=
@@ -122,6 +123,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         }
       }
 
+      topicWiseCorrectAnswers[topics[currentTopicIndex].name] =
+          correctAnswersCount;
+
+      gptProvider.setTopicWiseCorrectAnswers(
+          topics[currentTopicIndex].name, correctAnswersCount,);
+
       print("Correct answers count: $correctAnswersCount");
 
       if (currentQuestionIndex ==
@@ -137,8 +144,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return ResultScreen(
-                    topicWiseCorrectAnswers: topicWiseCorrectAnswers);
+                return const ResultScreen();
               }),
             );
           } else {
@@ -167,7 +173,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ss1 = StepState.indexed;
           ss2 = StepState.indexed;
           ss3 = StepState.indexed;
-          callexplain();
+          // callexplain();
         }
       } else {
         currentQuestionIndex++;
@@ -232,6 +238,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future _speak(String texttospeech) async {
     //change voice
+    isPlaying = true;
     await flutterTts.setLanguage("en-US");
     await flutterTts.setPitch(1);
     await flutterTts.speak(texttospeech);
@@ -303,6 +310,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  bool isPlaying = true;
   void _showExplainDialog() {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -333,67 +341,65 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                   centerTitle: true,
                 ),
-                body: Column(
-                  children: [
-                    AlertDialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      backgroundColor: primaryColor,
-                      title: Center(
-                        child: Text(
-                          topics[currentTopicIndex].name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                body: Container(
+                  constraints: const BoxConstraints.expand(),
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    backgroundColor: primaryColor,
+                    title: Text(
+                      topics[currentTopicIndex].name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                      content: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: SingleChildScrollView(
-                          child: Text(
-                            _explaination!,
-                            style: const TextStyle(color: Colors.white),
-                            textAlign: TextAlign.justify,
-                          ),
-                        ),
-                      ),
-                      actionsPadding: const EdgeInsets.all(0),
-                      actions: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(10),
-                              bottomRight: Radius.circular(10),
-                            ),
-                            color: secondaryColor,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  flutterTts.stop();
-                                  _explain();
-                                },
-                                child: const Text("Explain again",
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  flutterTts.stop();
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Proceed",
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      textAlign: TextAlign.center,
                     ),
-                  ],
+                    content: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: SingleChildScrollView(
+                        child: Text(
+                          _explaination!,
+                          style: const TextStyle(color: Colors.white),
+                          textAlign: TextAlign.justify,
+                        ),
+                      ),
+                    ),
+                    actionsPadding: const EdgeInsets.all(0),
+                    actions: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                          color: secondaryColor,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                flutterTts.stop();
+                                _explain();
+                              },
+                              child: const Text("Explain again",
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                flutterTts.stop();
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Proceed",
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           opaque: true),
@@ -438,6 +444,28 @@ class _HomePageState extends ConsumerState<HomePage> {
         : Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
+              actions: [
+                PopupMenuButton(
+                  icon: SvgPicture.asset('assets/images/avatar.svg', height: 40),
+                  onSelected: (value) {
+                    if (value == 1) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return const ResultScreen();
+                        }),
+                      );
+                    }
+                    if (value == 2) {
+                      SystemNavigator.pop();
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    const PopupMenuItem(value: 1, child: Text('Performance')),
+                    const PopupMenuItem(value: 2, child: Text('Exit')),
+                  ],
+                ),
+              ],
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -456,7 +484,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ],
                   ),
-                  SvgPicture.asset('assets/images/avatar.svg', height: 40),
                 ],
               ),
               centerTitle: true,
@@ -518,33 +545,47 @@ class _HomePageState extends ConsumerState<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Material(
-                      elevation: 5,
-                      borderRadius: BorderRadius.circular(5),
-                      child: TextFormField(
-                        style: const TextStyle(
-                          color: secondaryColor,
-                        ),
-                        controller: _answer,
-                        onChanged: (value) => setState(() {
-                          _btnactive = true;
-                        }),
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 7,
-                        cursorColor: primaryColor,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none),
-                          contentPadding: const EdgeInsets.all(10),
-                          hintText: "Enter your answer here",
-                          hintStyle: const TextStyle(
-                            color: secondaryColor,
+                    Stack(
+                      children: [
+                        Material(
+                          elevation: 5,
+                          borderRadius: BorderRadius.circular(5),
+                          child: TextFormField(
+                            style: const TextStyle(
+                              color: secondaryColor,
+                            ),
+                            controller: _answer,
+                            onChanged: (value) => setState(() {
+                              _btnactive = true;
+                            }),
+                            keyboardType: TextInputType.multiline,
+                            maxLines: 7,
+                            cursorColor: primaryColor,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none),
+                              contentPadding: const EdgeInsets.all(10),
+                              hintText: "Enter your answer here",
+                              hintStyle: const TextStyle(
+                                color: secondaryColor,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: IconButton(
+                            onPressed: () {
+                              // Add your IconButton onPressed code here
+                            },
+                            icon: const Icon(Icons.mic, color: primaryColor),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       height: 40,
@@ -568,7 +609,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     ? null
                                     : () {
                                         var prevTopic = currentTopicIndex;
-                                        _submit().then((value) {
+                                        _submit(gptRef).then((value) {
                                           gptRef.setCurrentTopicIndex(
                                             currentTopicIndex,
                                           );
@@ -576,7 +617,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               gptRef.currentTopicIndex;
                                           if (prevTopic != newTopic) {
                                             gptRef.setUnlockedTopics(newTopic);
+                                            // gptRef.setTopicWiseCorrectAnswers(
+                                            //   topics[prevTopic].name,
+                                            //   correctAnswersCount,
+                                            // );
                                           }
+
                                         });
                                       },
                             child: _isLoading
