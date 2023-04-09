@@ -19,7 +19,7 @@ To run this application, you will need the following:
 
 1. Clone this repository to your local machine.
 2. Open the project in your preferred code editor.
-3. Add your ChatGPT API credentials to the `main.dart` file.
+3. Add your ChatGPT API credentials to the `secrets.dart` file.
 4. Install the required dependencies by running `flutter pub get`.
 5. Run the application using `flutter run`.
 
