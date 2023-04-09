@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptutor/landing_page.dart';
+import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/widgets/colors.dart';
 
 void main() {
@@ -28,6 +29,15 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const LandingPage(),
+      // home: const ResultScreen(),
+      //  topicWiseCorrectAnswers: {
+      //    "Intro to ML Training": 1,
+      //    "Steps in Training":2,
+      //    "Data Collection":3,
+      //    "Preprocessing":2,
+      //    "Preprocessin":2,
+      //  },
+      // ),
     );
   }
 }

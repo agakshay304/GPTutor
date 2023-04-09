@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/topics.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'gp_provider.dart';
@@ -34,6 +36,28 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     final gptRef = ref.watch(gptProvider);
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          PopupMenuButton(
+            icon: SvgPicture.asset('assets/images/avatar.svg', height: 40),
+            onSelected: (value) {
+              if (value == 1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return const ResultScreen();
+                  }),
+                );
+              }
+              if (value == 2) {
+                SystemNavigator.pop();
+              }
+            },
+            itemBuilder: (context) => const [
+              const PopupMenuItem(value: 1, child: Text('Performance')),
+              const PopupMenuItem(value: 2, child: Text('Exit')),
+            ],
+          ),
+        ],
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -52,7 +76,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                 ),
               ],
             ),
-            SvgPicture.asset('assets/images/avatar.svg', height: 40),
           ],
         ),
       ),
@@ -91,7 +114,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>HomePage( index: i),
+                                  builder: (context) => HomePage(index: i),
                                 ),
                               );
                             } else {

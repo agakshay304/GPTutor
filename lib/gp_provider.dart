@@ -21,4 +21,13 @@ class GPTProvider extends ChangeNotifier {
     print("Unlocked topics from provider: $unlockedTopics");
     notifyListeners();
   }
+
+
+  Map<String, int> topicWiseCorrectAnswers = {};
+
+  void setTopicWiseCorrectAnswers(String topic, int correctAnswers) {
+    topicWiseCorrectAnswers[topic] = correctAnswers;
+    print("Topic wise correct answers from provider: $topicWiseCorrectAnswers");
+    notifyListeners();
+  }
 }
