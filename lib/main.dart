@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptutor/landing_page.dart';
 import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/widgets/colors.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:page_transition/page_transition.dart';
 
 void main() {
   runApp(
@@ -28,7 +30,16 @@ class MyApp extends StatelessWidget {
           backgroundColor: primaryColor,
         ),
       ),
-      home: const LandingPage(),
+      home: AnimatedSplashScreen(
+        splash: Image.asset(
+          'assets/images/logo_splash.jpeg',
+        ),
+        duration: 3000,
+        nextScreen: LandingPage(),
+        splashTransition: SplashTransition.fadeTransition,
+        pageTransitionType: PageTransitionType.fade,
+        backgroundColor: Colors.white,
+      ),
       // home: const ResultScreen(),
       //  topicWiseCorrectAnswers: {
       //    "Intro to ML Training": 1,
