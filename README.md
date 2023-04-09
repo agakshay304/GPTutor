@@ -51,4 +51,4 @@ const openAIKey = 'YOUR_OPENAI_API_KEY';
 
 ## Links
 - Preview on the web: https://gptutor.web.app/
-- Flutter app: [Download APK](app-release.apk)]
+- Flutter app: [Download APK](https://github.com/agakshay304/GPTutor/raw/main/app-release.apk)
