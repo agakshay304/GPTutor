@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:gptutor/openai_model.dart';
-import 'package:gptutor/secrets.dart';
+import 'package:gptutor/config.dart';
 
 final openAIServiceProvider =
     StateNotifierProvider<OpenAIService, OpenAI>((ref) {
