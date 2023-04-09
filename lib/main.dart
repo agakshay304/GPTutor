@@ -5,8 +5,12 @@ import 'package:gptutor/results_screen.dart';
 import 'package:gptutor/widgets/colors.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   runApp(
     const ProviderScope(
       child: MyApp(),
