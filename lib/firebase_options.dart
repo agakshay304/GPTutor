@@ -21,15 +21,9 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -60,5 +54,23 @@ class DefaultFirebaseOptions {
     authDomain: 'gptutor-f2a34.firebaseapp.com',
     storageBucket: 'gptutor-f2a34.appspot.com',
     measurementId: 'G-D2G1SRJH2Y',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyACOs6yLIdtNz-8WK2qe4TSPPUZOAbSujk',
+    appId: '1:215549519800:android:2629ca0a6b06209dfe114d',
+    messagingSenderId: '215549519800',
+    projectId: 'gptutor-f2a34',
+    storageBucket: 'gptutor-f2a34.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCZuEQweNOvdgnUpUfs-VCToPcxFfXudrY',
+    appId: '1:215549519800:ios:af96da58c75357f3fe114d',
+    messagingSenderId: '215549519800',
+    projectId: 'gptutor-f2a34',
+    storageBucket: 'gptutor-f2a34.appspot.com',
+    iosClientId: '215549519800-ift4ktrgjgknb3qnql4rra471sb9c90k.apps.googleusercontent.com',
+    iosBundleId: 'com.example.gptutor',
   );
 }

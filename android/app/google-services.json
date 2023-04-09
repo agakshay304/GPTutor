@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "215549519800",
+    "project_id": "gptutor-f2a34",
+    "storage_bucket": "gptutor-f2a34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215549519800:android:2629ca0a6b06209dfe114d",
+        "android_client_info": {
+          "package_name": "com.example.gptutor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215549519800-500l0u36q5m07lh0g606g1sttsvn756u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACOs6yLIdtNz-8WK2qe4TSPPUZOAbSujk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215549519800-500l0u36q5m07lh0g606g1sttsvn756u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "215549519800-ift4ktrgjgknb3qnql4rra471sb9c90k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gptutor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
