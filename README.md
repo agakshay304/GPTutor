@@ -49,6 +49,7 @@ const openAIKey = 'YOUR_OPENAI_API_KEY';
 - Improve the AI tutor's accuracy by using more advanced natural language processing techniques.
 - Allow users to rate the accuracy of the AI tutor's responses, which can help improve the model over time.
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Links
+- Preview on the web: https://gptutor.web.app/
+- Flutter app:
+- [Install APK](byvtvv)]
